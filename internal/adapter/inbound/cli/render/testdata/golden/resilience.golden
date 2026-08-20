@@ -1,0 +1,32 @@
+
+Topology
+─────────────────────────────────────────────
+
+        eu-west-1
+       AZ-A   |   AZ-B   |   AZ-C
+        yb1      yb2      yb3
+
+RF=3
+
+Failure simulations
+─────────────────────────────────────────────
+
+Lose yb1:
+PASS
+
+Lose AZ-A:
+PASS
+
+Lose AZ-A + AZ-B:
+FAIL
+Quorum lost
+
+Lose eu-west-1:
+FAIL
+Quorum lost
+
+RPO:
+0 for tolerated failures
+
+Recommendation:
+Add cross-region replica placement if regional failure tolerance is required.

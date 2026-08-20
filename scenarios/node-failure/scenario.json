@@ -1,0 +1,21 @@
+{
+  "replication_factor": 3,
+  "placement_blocks": [
+    {"cloud": "aws", "region": "eu-west-1", "zone": "eu-west-1a"},
+    {"cloud": "aws", "region": "eu-west-1", "zone": "eu-west-1b"},
+    {"cloud": "aws", "region": "eu-west-1", "zone": "eu-west-1c"}
+  ],
+  "masters": [
+    {"id": "m1", "host": "yb-1", "role": "LEADER", "healthy": true, "placement": {"cloud": "aws", "region": "eu-west-1", "zone": "eu-west-1a"}},
+    {"id": "m2", "host": "yb-2", "role": "FOLLOWER", "healthy": true, "placement": {"cloud": "aws", "region": "eu-west-1", "zone": "eu-west-1b"}},
+    {"id": "m3", "host": "yb-3", "role": "FOLLOWER", "healthy": true, "placement": {"cloud": "aws", "region": "eu-west-1", "zone": "eu-west-1c"}}
+  ],
+  "tservers": [
+    {"id": "n1", "name": "yb-1", "host": "yb-1", "status": "DEAD", "placement": {"cloud": "aws", "region": "eu-west-1", "zone": "eu-west-1a"}},
+    {"id": "n2", "name": "yb-2", "host": "yb-2", "status": "ALIVE", "placement": {"cloud": "aws", "region": "eu-west-1", "zone": "eu-west-1b"}},
+    {"id": "n3", "name": "yb-3", "host": "yb-3", "status": "ALIVE", "placement": {"cloud": "aws", "region": "eu-west-1", "zone": "eu-west-1c"}}
+  ],
+  "under_replicated": 9,
+  "performance": {"p99_ysql_ms": 45, "nodes": {}},
+  "workload": {"tps": 12000, "read_pct": 60, "write_pct": 40, "connections": 200}
+}

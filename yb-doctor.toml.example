@@ -1,0 +1,14 @@
+# Copy to yb-doctor.toml (gitignored) and fill in. Do not commit passwords.
+#
+# Precedence: --flag > env > this file > defaults.
+
+masters = ["127.0.0.1:7000"]
+# tserver_http_base = 9000
+
+[ysql]
+addr = "127.0.0.1:5433"
+user = "yugabyte"
+# password = ""
+database = "yugabyte"
+sslmode = "disable"          # require on Yugabyte Aeon
+# timeout = "15s"

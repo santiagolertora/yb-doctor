@@ -1,0 +1,56 @@
+
+YugabyteDB Cluster Health
+─────────────────────────────────────────────
+Nodes                    6
+Masters                  3/3 healthy
+TServers                 6/6 healthy
+Replication Factor       3
+Regions                  aws.eu-west-1
+
+Tablet Health
+─────────────────────────────────────────────
+Tablets                  1,284
+Under-replicated         0
+Leader imbalance         WARNING
+Tablet imbalance         OK
+
+Node Distribution
+─────────────────────────────────────────────
+                    Leaders   Followers    Total      SST  Pending   Debt
+yb-01                   312         331      643      10G      n/a     0%
+yb-02                   305         337      642      10G      n/a     0%
+yb-03                   301         342      643      12G     2.0G    17%
+yb-04                   121         518      639      10G      n/a     0%
+yb-05                   119         521      640      10G      n/a     0%
+yb-06                   126         519      645      10G      n/a     0%
+
+WARNING: Leader imbalance detected
+  yb-01 has 2.6x more leaders than yb-05.
+
+Raft
+─────────────────────────────────────────────
+Leaderless tablets       0
+Under-replicated         0
+Slow followers           7
+
+Performance
+─────────────────────────────────────────────
+P99 YSQL latency         38ms
+Slow queries             12
+Hot tablets              3
+Compaction pressure      HIGH on yb-03
+
+Diagnosis
+─────────────────────────────────────────────
+
+[HIGH] Compaction pressure on yb-03
+       → pending compaction: 2.0 GiB
+       → SST files: 12.0 GiB
+       → pending/SST: 17%
+       → disk utilization: 87%
+       → write latency correlated +64%
+
+[MEDIUM] Leader imbalance
+       → consider checking leader balancing
+
+Overall score: 78/100

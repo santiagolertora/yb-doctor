@@ -1,0 +1,12 @@
+{
+  "name": "YugabyteDB POC",
+  "min_nodes": 3,
+  "min_azs": 3,
+  "replication_factor": 3,
+  "tolerate_node_failure": true,
+  "tolerate_az_failure": true,
+  "max_p99_ysql_ms": 20,
+  "min_tps": 50000,
+  "balanced_tablets": true,
+  "balanced_leaders": true
+}

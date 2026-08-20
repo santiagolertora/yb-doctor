@@ -1,0 +1,113 @@
+version: "3"
+
+vars:
+  GO_VERSION: "1.24.5"
+  BINARY: yb-doctor
+  VERSION:
+    sh: git describe --tags --always --dirty 2>/dev/null || echo dev
+  COVER_PROFILE: cover.out
+
+tasks:
+  default:
+    desc: Run unit tests
+    cmds:
+      - task: test
+
+  tidy:
+    desc: Tidy modules and fail on drift
+    cmds:
+      - go mod tidy
+      - git diff --exit-code go.mod go.sum
+
+  lint:
+    desc: Run golangci-lint
+    cmds:
+      - golangci-lint run ./...
+
+  test:
+    desc: Run unit tests with the race detector
+    cmds:
+      - go test -race -count=1 ./...
+
+  test:integration:
+    desc: Run integration tests
+    cmds:
+      - go test -race -count=1 -tags=integration ./...
+
+  test:e2e:
+    desc: Run end-to-end tests against docker-compose
+    cmds:
+      - go test -race -count=1 -tags=e2e ./test/e2e/...
+
+  cover:
+    desc: Enforce coverage threshold on internal packages
+    cmds:
+      - go test -race -count=1 -coverprofile={{.COVER_PROFILE}} -covermode=atomic ./internal/...
+      - bash build/ci/coverage.sh {{.COVER_PROFILE}} build/ci/coverage.yml
+
+  build:
+    desc: Build a stripped binary into dist/
+    cmds:
+      - mkdir -p dist
+      - go build -trimpath -ldflags="-s -w -X main.version={{.VERSION}}" -o dist/{{.BINARY}} ./cmd/{{.BINARY}}
+
+  ci:
+    desc: Full local CI gate
+    cmds:
+      - task: lint
+      - task: test
+      - task: test:integration
+      - task: cover
+      - task: tidy
+
+  run:
+    desc: Run yb-doctor against a scenario
+    cmds:
+      - go run ./cmd/yb-doctor -- {{.CLI_ARGS}}
+
+  lab:up:
+    desc: Start the labeled 3-node YugabyteDB Docker lab and wait until Master is ready
+    cmds:
+      - docker compose up -d
+      - bash build/ci/wait-yugabyte.sh http://127.0.0.1:27000/api/v1/masters
+      - bash build/ci/wait-yugabyte.sh http://127.0.0.1:27001/api/v1/masters
+      - bash build/ci/wait-yugabyte.sh http://127.0.0.1:27002/api/v1/masters
+      - docker exec yugabyte-n1 bin/yugabyted configure data_placement --base_dir=/home/yugabyte/yb_data --fault_tolerance=zone
+
+  lab:down:
+    desc: Stop and remove the YugabyteDB lab
+    cmds:
+      - docker compose down -v
+
+  lab:ps:
+    desc: List YugabyteDB lab containers by label
+    cmds:
+      - docker ps --filter label=com.yugabyte.product=yugabytedb
+
+  lab:load:
+    desc: Load a POC-shaped YSQL workload so yb-doctor has tablets, P99, and heat
+    cmds:
+      - bash build/ci/demo-workload.sh
+
+  lab:analyze:
+    desc: Run yb-doctor against the local Docker universe
+    env:
+      YB_DOCTOR_TSERVER_HTTP_BASE: "28000"
+      YB_DOCTOR_YSQL: "127.0.0.1:26433"
+    cmds:
+      - go run ./cmd/yb-doctor --no-color --master 127.0.0.1:27000 analyze
+
+  lab:resilience:
+    desc: Simulate node/AZ/region loss against the live lab
+    env:
+      YB_DOCTOR_TSERVER_HTTP_BASE: "28000"
+    cmds:
+      - go run ./cmd/yb-doctor --no-color --master 127.0.0.1:27000 resilience
+
+  lab:poc:
+    desc: Run the POC acceptance checklist against the live lab
+    env:
+      YB_DOCTOR_TSERVER_HTTP_BASE: "28000"
+      YB_DOCTOR_YSQL: "127.0.0.1:26433"
+    cmds:
+      - go run ./cmd/yb-doctor --no-color --master 127.0.0.1:27000 poc

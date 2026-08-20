@@ -1,0 +1,76 @@
+version: "2"
+
+run:
+  tests: true
+  modules-download-mode: readonly
+
+linters:
+  default: none
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
+    - revive
+    - gosec
+    - gocritic
+    - unparam
+    - unused
+    - ineffassign
+    - bodyclose
+    - contextcheck
+    - errorlint
+    - nilerr
+    - noctx
+    - prealloc
+    - nolintlint
+    - forbidigo
+    - wrapcheck
+  settings:
+    revive:
+      rules:
+        - name: exported
+        - name: package-comments
+        - name: var-naming
+    forbidigo:
+      forbid:
+        - pattern: '^fmt\.Print(ln)?$'
+          msg: do not print to stdout from library packages; write to an io.Writer
+      exclude-godoc-examples: true
+    wrapcheck:
+      extra-ignore-sigs:
+        - github.com/santiagolertora/yb-doctor/internal/domain.
+    gosec:
+      excludes:
+        - G115
+  exclusions:
+    rules:
+      - path: cmd/
+        linters:
+          - forbidigo
+          - wrapcheck
+      - path: internal/app/
+        linters:
+          - wrapcheck
+      - path: internal/domain/
+        linters:
+          - wrapcheck
+      - path: internal/config/
+        linters:
+          - wrapcheck
+      - path: internal/observability/
+        linters:
+          - wrapcheck
+      - path: _test\.go
+        linters:
+          - gosec
+          - wrapcheck
+          - forbidigo
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/santiagolertora/yb-doctor

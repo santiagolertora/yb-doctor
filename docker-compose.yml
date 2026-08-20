@@ -1,0 +1,130 @@
+# Local YugabyteDB RF=3 lab for yb-doctor.
+# Every container is named and labeled so `docker ps` and
+# `docker ps --filter label=com.yugabyte.product=yugabytedb` find them instantly.
+name: yugabyte
+
+x-yugabyte-common: &yugabyte-common
+  # Hub `latest` is amd64-only. On Apple Silicon that forces qemu and
+  # yugabyted never becomes healthy. Pin the native aarch64 tag.
+  image: yugabytedb/yugabyte:2025.2.5.2-b5-aarch64
+  platform: linux/arm64
+  restart: unless-stopped
+  labels:
+    com.yugabyte.product: yugabytedb
+    com.yugabyte.cluster: yb-doctor-lab
+    com.yugabyte.role: node
+  ulimits:
+    nofile:
+      soft: 1048576
+      hard: 1048576
+  networks: [yugabyte-net]
+
+services:
+  yugabyte-n1:
+    <<: *yugabyte-common
+    container_name: yugabyte-n1
+    hostname: yugabyte-n1
+    labels:
+      com.yugabyte.product: yugabytedb
+      com.yugabyte.cluster: yb-doctor-lab
+      com.yugabyte.role: node
+      com.yugabyte.node: "1"
+      com.yugabyte.zone: eu-west-1a
+    command:
+      - bash
+      - -c
+      - |
+        bin/yugabyted start \
+          --base_dir=/home/yugabyte/yb_data \
+          --advertise_address=yugabyte-n1 \
+          --cloud_location=aws.eu-west-1.eu-west-1a \
+          --fault_tolerance=zone \
+          --background=false
+    ports:
+      - "27000:7000"
+      - "28000:9000"
+      - "26433:5433"
+      - "26443:15433"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://$(hostname):7000/api/v1/masters >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 36
+      start_period: 40s
+
+  yugabyte-n2:
+    <<: *yugabyte-common
+    container_name: yugabyte-n2
+    hostname: yugabyte-n2
+    labels:
+      com.yugabyte.product: yugabytedb
+      com.yugabyte.cluster: yb-doctor-lab
+      com.yugabyte.role: node
+      com.yugabyte.node: "2"
+      com.yugabyte.zone: eu-west-1b
+    depends_on:
+      yugabyte-n1:
+        condition: service_healthy
+    command:
+      - bash
+      - -c
+      - |
+        bin/yugabyted start \
+          --base_dir=/home/yugabyte/yb_data \
+          --advertise_address=yugabyte-n2 \
+          --join=yugabyte-n1 \
+          --cloud_location=aws.eu-west-1.eu-west-1b \
+          --fault_tolerance=zone \
+          --background=false
+    ports:
+      - "27001:7000"
+      - "28001:9000"
+      - "26434:5433"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://$(hostname):7000/api/v1/masters >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 36
+      start_period: 40s
+
+  yugabyte-n3:
+    <<: *yugabyte-common
+    container_name: yugabyte-n3
+    hostname: yugabyte-n3
+    labels:
+      com.yugabyte.product: yugabytedb
+      com.yugabyte.cluster: yb-doctor-lab
+      com.yugabyte.role: node
+      com.yugabyte.node: "3"
+      com.yugabyte.zone: eu-west-1c
+    depends_on:
+      yugabyte-n1:
+        condition: service_healthy
+    command:
+      - bash
+      - -c
+      - |
+        bin/yugabyted start \
+          --base_dir=/home/yugabyte/yb_data \
+          --advertise_address=yugabyte-n3 \
+          --join=yugabyte-n1 \
+          --cloud_location=aws.eu-west-1.eu-west-1c \
+          --fault_tolerance=zone \
+          --background=false
+    ports:
+      - "27002:7000"
+      - "28002:9000"
+      - "26435:5433"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://$(hostname):7000/api/v1/masters >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 36
+      start_period: 40s
+
+networks:
+  yugabyte-net:
+    name: yugabyte-net
+    labels:
+      com.yugabyte.product: yugabytedb
+      com.yugabyte.cluster: yb-doctor-lab

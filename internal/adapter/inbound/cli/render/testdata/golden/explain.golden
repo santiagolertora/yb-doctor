@@ -1,0 +1,32 @@
+
+TABLET-IMBALANCE
+─────────────────────────────────────────────
+
+WHAT
+─────────────────────
+
+Tablet distribution across TServers is uneven.
+
+WHY IT MATTERS
+─────────────────────
+
+Uneven tablet placement can create CPU, memory, disk and network hotspots.
+
+CURRENT CLUSTER
+─────────────────────
+
+yb-01    642
+yb-02    641
+yb-03    914  ← 42% above average
+
+POSSIBLE CAUSES
+─────────────────────
+
+• recently added/removed node
+• rebalance still running
+
+NEXT STEPS
+─────────────────────
+
+1. Check cluster balancing status
+2. Check placement configuration

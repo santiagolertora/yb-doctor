@@ -1,0 +1,40 @@
+# Binaries
+dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/yb-doctor
+
+# Test / coverage
+*.out
+*.test
+cover.html
+/coverage.out
+
+# Go workspace
+go.work
+go.work.sum
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+yb-doctor.toml
+
+# Docker volumes
+data/
+
+# Local linter cache
+.cache/
+
+# Draft posts; not part of the product
+blog/

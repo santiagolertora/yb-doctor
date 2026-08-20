@@ -1,0 +1,28 @@
+
+YUGABYTEDB POC REPORT
+─────────────────────────────────────────────
+
+Workload
+─────────────────────
+Database size       4.2 TB
+TPS                 38,200
+Read/write          72/28
+Connections         850
+
+Architecture
+─────────────────────
+Nodes               6
+Regions             1
+AZs                 3
+RF                  3
+
+Validation
+─────────────────────
+[PASS] Node failure
+[PASS] AZ failure
+[WARN] P99 < 20ms requirement
+
+POC RESULT
+─────────────────────
+
+7/8 acceptance criteria passed.

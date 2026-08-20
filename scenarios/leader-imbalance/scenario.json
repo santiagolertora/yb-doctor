@@ -1,0 +1,43 @@
+{
+  "replication_factor": 3,
+  "placement_blocks": [
+    {"cloud": "aws", "region": "eu-west-1", "zone": "eu-west-1a"},
+    {"cloud": "aws", "region": "eu-west-1", "zone": "eu-west-1b"},
+    {"cloud": "aws", "region": "eu-west-1", "zone": "eu-west-1c"}
+  ],
+  "masters": [
+    {"id": "m1", "host": "yb-01", "role": "LEADER", "healthy": true, "placement": {"cloud": "aws", "region": "eu-west-1", "zone": "eu-west-1a"}},
+    {"id": "m2", "host": "yb-02", "role": "FOLLOWER", "healthy": true, "placement": {"cloud": "aws", "region": "eu-west-1", "zone": "eu-west-1b"}},
+    {"id": "m3", "host": "yb-03", "role": "FOLLOWER", "healthy": true, "placement": {"cloud": "aws", "region": "eu-west-1", "zone": "eu-west-1c"}}
+  ],
+  "tservers": [
+    {"id": "n1", "name": "yb-01", "host": "yb-01", "status": "ALIVE", "placement": {"cloud": "aws", "region": "eu-west-1", "zone": "eu-west-1a"}},
+    {"id": "n2", "name": "yb-02", "host": "yb-02", "status": "ALIVE", "placement": {"cloud": "aws", "region": "eu-west-1", "zone": "eu-west-1b"}},
+    {"id": "n3", "name": "yb-03", "host": "yb-03", "status": "ALIVE", "placement": {"cloud": "aws", "region": "eu-west-1", "zone": "eu-west-1c"}},
+    {"id": "n4", "name": "yb-04", "host": "yb-04", "status": "ALIVE", "placement": {"cloud": "aws", "region": "eu-west-1", "zone": "eu-west-1a"}},
+    {"id": "n5", "name": "yb-05", "host": "yb-05", "status": "ALIVE", "placement": {"cloud": "aws", "region": "eu-west-1", "zone": "eu-west-1b"}},
+    {"id": "n6", "name": "yb-06", "host": "yb-06", "status": "ALIVE", "placement": {"cloud": "aws", "region": "eu-west-1", "zone": "eu-west-1c"}}
+  ],
+  "leaders": {"yb-01": 312, "yb-02": 305, "yb-03": 301, "yb-04": 121, "yb-05": 119, "yb-06": 126},
+  "followers": {"yb-01": 331, "yb-02": 337, "yb-03": 342, "yb-04": 518, "yb-05": 521, "yb-06": 519},
+  "slow_followers": 7,
+  "hot_tablets": 3,
+  "performance": {
+    "p99_ysql_ms": 38,
+    "slow_queries": 12,
+    "nodes": {
+      "yb-03": {
+        "disk_percent": 87,
+        "pending_compaction_bytes": 2147483648,
+        "write_latency_delta_pct": 64
+      }
+    }
+  },
+  "workload": {
+    "database_bytes": 4200000000000,
+    "tps": 38200,
+    "read_pct": 72,
+    "write_pct": 28,
+    "connections": 850
+  }
+}
